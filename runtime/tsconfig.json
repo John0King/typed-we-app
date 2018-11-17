@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "strict": true,
+    "target": "es5",
+    "lib": [
+      "es2015",
+      "dom",
+      "es6",
+      "es2017"
+    ],
+    "experimentalDecorators": true,
+    "declaration": true,
+    "outDir": "../runtimeSample/runtime/",
+    "declarationMap": true,
+    "composite": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "files": [
+    "Runtime.ts",
+    "Reflect.ts"
+  ]
+  
+}

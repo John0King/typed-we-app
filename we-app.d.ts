@@ -2164,10 +2164,10 @@ declare namespace WeApp {
     }
 
     interface LogManager {
-        warn(...arg: any): void;
-        log(...arg: any): void;
-        info(...arg: any): void;
-        debug(...arg: any): void;
+        warn(...arg: any[]): void;
+        log(...arg: any[]): void;
+        info(...arg: any[]): void;
+        debug(...arg: any[]): void;
     }
     // #endregion
 

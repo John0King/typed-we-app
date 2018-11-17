@@ -1,0 +1,10 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="userinfo">
+    <button bind:tap="clickme"> 点击我 </button>
+    
+  </view>
+  <view wx:if="{{showClick == true}}">
+    <text class="userinfo-nickname">{{word}}</text>
+  </view>
+</view>

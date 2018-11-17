@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "strict": true,
+    "target": "es5",
+    "lib": [ "es2015", "dom", "es2015.promise" ],
+    "declaration": true,
+    "declarationMap": true,
+    "experimentalDecorators": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "compileOnSave": true,
+  "references": [
+    {
+      "path": "../runtime/tsconfig.json"
+    }
+  ]
+}
