@@ -4,23 +4,27 @@ export declare abstract class WeChatApplication {
     globalData: {
         [key: string]: any;
     };
-    abstract onLaunch(info: WeApp.LaunchData): void | Promise<any>;
-    onShow?(info: WeApp.LaunchData): any;
-    private __runtime__app;
+    protected __runtime__app: any;
     private __runtime__initialized;
     __runtime__initialize(deep: any): void;
+    /** Start you application
+     * @param app  instance of WechatApplction or a constructor
+    */
     static bootstrap<T extends WeChatApplication>(app: WeChatApplication | ApplicationConstructor<T>): void;
+    private static __runtime__static_current_app;
+    /**
+     * a helper method for replace wechat's @see GetGlobalApp()
+     */
+    static GetCurrentApp<T = WeChatApplication>(): T;
 }
 export declare function applicationConfigConvert(app: WeChatApplication): WeApp.AppParam;
 export interface ApplicationConstructor<T extends WeChatApplication> {
     new (...args: any[]): T;
 }
 export declare abstract class WeChatPage {
-    private __runtime__page;
+    protected __runtime__page: any;
     private __runtime__initialized;
     __runtime__initialize(deep: any): void;
-    private __runtime__delay_data;
-    private __runtime__initialize_delayaction;
     private __temporary__data;
     data: {
         [key: string]: any;
@@ -40,18 +44,40 @@ export interface OnPageLoad {
 export interface OnPageUnload {
     onUnload(): void | Promise<any>;
 }
+/** wasn't ready for use */
+export declare abstract class WechatComponent {
+    protected __runtime__component: any;
+    private __runtime__initialized;
+    __runtime__initialize(deep: any): void;
+    private __temporary__data;
+    data: {
+        [key: string]: any;
+    };
+    setData(partialData: {
+        [key: string]: any;
+    }): void;
+    static initComponent<T extends WechatComponent>(component: WechatComponent | ComponentConstructor<T>): void;
+}
+export interface ComponentConstructor<T> {
+    new (...args: any[]): T;
+}
+export declare function componentConfigConvert(component: WechatComponent): WeApp.ComponentParam;
 /**
  * Tell the runtime that this method/property/field do not need map to Config Object
  */
-export declare function Ignore(): {
+export declare function MapToIgnore(): {
     (target: Function): void;
     (target: any, propertyKey: string | symbol): void;
 };
 /**
- * Tell the runtime that this property/field   need to be a get/set to { Config => Class }
+ * Tell the runtime that this property/field   **must**  get/set back { Config => Class }
  * Warning: this decorator can only apply to filed/property
  */
-export declare function MapGetSet(): {
+export declare function MapBackGetSet(): {
+    (target: Function): void;
+    (target: any, propertyKey: string | symbol): void;
+};
+export declare function MapTo(targetName: string): {
     (target: Function): void;
     (target: any, propertyKey: string | symbol): void;
 };

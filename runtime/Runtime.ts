@@ -4,8 +4,9 @@ import {Reflect} from "./Reflect"
 //========================================================
 // ==================Application==========================
 //========================================================
+
 export abstract class WeChatApplication {
-    @Ignore()
+    @MapToIgnore()
     private __temporary__globalData: { [key: string]: any } = {};
 
     get globalData(): { [key: string]: any } {
@@ -22,24 +23,23 @@ export abstract class WeChatApplication {
         this.__temporary__globalData = value;
     }
 
-    abstract onLaunch(info: WeApp.LaunchData): void | Promise<any>
-
-    onShow?(info: WeApp.LaunchData)
-
-    @Ignore()
-    private __runtime__app: any;
-    @Ignore()
+    @MapToIgnore()
+    protected __runtime__app: any;
+    @MapToIgnore()
     private __runtime__initialized: boolean = false;
-    @Ignore()
+    @MapToIgnore()
     public __runtime__initialize(deep: any) {
         if (this.__runtime__initialized) {
             throw new Error(`type already inialized`);
         }
         this.__runtime__app = deep;
         this.__runtime__initialized = true;
+        WeChatApplication.__runtime__static_current_app = this; // set currentApplication
     }
 
-
+    /** Start you application 
+     * @param app  instance of WechatApplction or a constructor
+    */
     static bootstrap<T extends WeChatApplication>(app: WeChatApplication | ApplicationConstructor<T>) {
         let appConfig: WeChatApplication;
         if (app instanceof WeChatApplication) {
@@ -52,6 +52,19 @@ export abstract class WeChatApplication {
             throw new TypeError(`typeof app : must be a instance of WeChatApplication or a constructor of WebChatApplication`)
         }
         App(applicationConfigConvert(appConfig))
+    }
+
+    private static __runtime__static_current_app:WeChatApplication|null = null;
+
+    /**
+     * a helper method for replace wechat's @see GetGlobalApp()
+     */
+    static GetCurrentApp<T=WeChatApplication>():T{
+        if(this.__runtime__static_current_app != null){
+            return this.__runtime__static_current_app as any; // improve code experience
+        }
+        console.warn(`You call WechatApplication.GetCurrentApp() so early and your will get a null! `)
+        return null as any;
     }
 }
 
@@ -123,26 +136,17 @@ export interface ApplicationConstructor<T extends WeChatApplication> {
 
 export abstract class WeChatPage {
 
-    private __runtime__page: any;
+    protected __runtime__page: any;
     private __runtime__initialized: boolean = false;
     public __runtime__initialize(deep: any) {
         if (this.__runtime__initialized) {
             throw new Error(`type already inialized`);
         }
         this.__runtime__page = deep;
-        this.__runtime__initialize_delayaction();
         this.__runtime__initialized = true;
     }
-    private __runtime__delay_data: { [key: string]: any } = {}
-    private __runtime__initialize_delayaction() {
-        //let page = this.__runtime__page;
-        //page.setData
-        // need to findout when to copy this.data (__temporary__data)  to config
-        // eg. 1. call page.setData on delayaction  ##View Error before Page.onLoad##
-        //     2. set the data on target configParameter (do copy in convert function) 
-    }
 
-    @Ignore()
+    @MapToIgnore()
     private __temporary__data: { [key: string]: any } = {};
     get data(): { [key: string]: any } {
         if (this.__runtime__initialized) {
@@ -158,7 +162,7 @@ export abstract class WeChatPage {
         this.__temporary__data = value;
     }
 
-    @Ignore()
+    @MapToIgnore()
     setData(partialData: { [key: string]: any }) {
         this.__runtime__page.setData(partialData);
     }
@@ -206,12 +210,6 @@ export function pageConfigConvert(page: WeChatPage): WeApp.PageParam {
         }
         else {
             // undefined,null,string, symbol,number, boolean,object
-
-            // if(name == "data"){
-            //     config[name] = page[name];
-            //     continue;
-            // }
-            // else
              if (f != null) {
                 //string, symbol,number, boolean,object
                 Object.defineProperty(config, name, {
@@ -254,6 +252,63 @@ export interface OnPageUnload {
 // ================Component==============================
 //========================================================
 
+/** wasn't ready for use */
+export abstract class WechatComponent{
+    protected __runtime__component: any;
+    private __runtime__initialized: boolean = false;
+    public __runtime__initialize(deep: any) {
+        if (this.__runtime__initialized) {
+            throw new Error(`type already inialized`);
+        }
+        this.__runtime__component = deep;
+        this.__runtime__initialized = true;
+    }
+
+    @MapToIgnore()
+    private __temporary__data: { [key: string]: any } = {};
+    get data(): { [key: string]: any } {
+        if (this.__runtime__initialized) {
+            return this.__runtime__component.data;
+        }
+        return this.__temporary__data;
+    }
+    set data(value) {
+        if (this.__runtime__initialized) {
+            this.__runtime__component.setData(value);
+            return;
+        }
+        this.__temporary__data = value;
+    }
+
+    @MapToIgnore()
+    setData(partialData: { [key: string]: any }) {
+        this.__runtime__component.setData(partialData);
+    }
+
+    static initComponent<T extends WechatComponent>(component: WechatComponent | ComponentConstructor<T>) {
+        let componentInstance: WechatComponent;
+        if (component instanceof WechatComponent) {
+            componentInstance = component;
+        }
+        else if (typeof (component) === "function") {
+            componentInstance = new component();
+        }
+        else {
+            throw new TypeError(`typeof app : must be a instance of WeChatApplication or a constructor of WebChatApplication`)
+        }
+        Component(componentConfigConvert(componentInstance))
+    }
+}
+
+export interface ComponentConstructor<T>{
+    new(...args:any[]):T
+}
+
+export function componentConfigConvert(component:WechatComponent):WeApp.ComponentParam{
+    throw new Error(`not implement`);
+    
+}
+
 //========================================================
 // ================Metadata==============================
 //========================================================
@@ -261,14 +316,18 @@ export interface OnPageUnload {
 /**
  * Tell the runtime that this method/property/field do not need map to Config Object
  */
-export function Ignore() {
+export function MapToIgnore() {
     return Reflect.metadata(`ignore`, true);
 }
 
 /**
- * Tell the runtime that this property/field   need to be a get/set to { Config => Class }
+ * Tell the runtime that this property/field   **must**  get/set back { Config => Class }
  * Warning: this decorator can only apply to filed/property
  */
-export function MapGetSet(){
+export function MapBackGetSet(){
     return Reflect.metadata("nomap",true);
+}
+
+export function MapTo(targetName:string){
+    return Reflect.metadata("MapTo",targetName);
 }

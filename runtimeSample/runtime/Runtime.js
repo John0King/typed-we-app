@@ -39,7 +39,11 @@ var WeChatApplication = /** @class */ (function () {
         }
         this.__runtime__app = deep;
         this.__runtime__initialized = true;
+        WeChatApplication.__runtime__static_current_app = this; // set currentApplication
     };
+    /** Start you application
+     * @param app  instance of WechatApplction or a constructor
+    */
     WeChatApplication.bootstrap = function (app) {
         var appConfig;
         if (app instanceof WeChatApplication) {
@@ -53,17 +57,28 @@ var WeChatApplication = /** @class */ (function () {
         }
         App(applicationConfigConvert(appConfig));
     };
+    /**
+     * a helper method for replace wechat's @see GetGlobalApp()
+     */
+    WeChatApplication.GetCurrentApp = function () {
+        if (this.__runtime__static_current_app != null) {
+            return this.__runtime__static_current_app; // improve code experience
+        }
+        console.warn("You call WechatApplication.GetCurrentApp() so early and your will get a null! ");
+        return null;
+    };
+    WeChatApplication.__runtime__static_current_app = null;
     __decorate([
-        Ignore()
+        MapToIgnore()
     ], WeChatApplication.prototype, "__temporary__globalData", void 0);
     __decorate([
-        Ignore()
+        MapToIgnore()
     ], WeChatApplication.prototype, "__runtime__app", void 0);
     __decorate([
-        Ignore()
+        MapToIgnore()
     ], WeChatApplication.prototype, "__runtime__initialized", void 0);
     __decorate([
-        Ignore()
+        MapToIgnore()
     ], WeChatApplication.prototype, "__runtime__initialize", null);
     return WeChatApplication;
 }());
@@ -138,7 +153,6 @@ exports.applicationConfigConvert = applicationConfigConvert;
 var WeChatPage = /** @class */ (function () {
     function WeChatPage() {
         this.__runtime__initialized = false;
-        this.__runtime__delay_data = {};
         this.__temporary__data = {};
     }
     WeChatPage.prototype.__runtime__initialize = function (deep) {
@@ -146,15 +160,7 @@ var WeChatPage = /** @class */ (function () {
             throw new Error("type already inialized");
         }
         this.__runtime__page = deep;
-        this.__runtime__initialize_delayaction();
         this.__runtime__initialized = true;
-    };
-    WeChatPage.prototype.__runtime__initialize_delayaction = function () {
-        //let page = this.__runtime__page;
-        //page.setData
-        // need to findout when to copy this.data (__temporary__data)  to config
-        // eg. 1. call page.setData on delayaction  ##View Error before Page.onLoad##
-        //     2. set the data on target configParameter (do copy in convert function) 
     };
     Object.defineProperty(WeChatPage.prototype, "data", {
         get: function () {
@@ -190,10 +196,10 @@ var WeChatPage = /** @class */ (function () {
         Page(pageConfigConvert(pageConfig));
     };
     __decorate([
-        Ignore()
+        MapToIgnore()
     ], WeChatPage.prototype, "__temporary__data", void 0);
     __decorate([
-        Ignore()
+        MapToIgnore()
     ], WeChatPage.prototype, "setData", null);
     return WeChatPage;
 }());
@@ -232,11 +238,6 @@ function pageConfigConvert(page) {
         }
         else {
             // undefined,null,string, symbol,number, boolean,object
-            // if(name == "data"){
-            //     config[name] = page[name];
-            //     continue;
-            // }
-            // else
             if (f != null) {
                 //string, symbol,number, boolean,object
                 Object.defineProperty(config, name_2, {
@@ -262,21 +263,84 @@ exports.pageConfigConvert = pageConfigConvert;
 //========================================================
 // ================Component==============================
 //========================================================
+/** wasn't ready for use */
+var WechatComponent = /** @class */ (function () {
+    function WechatComponent() {
+        this.__runtime__initialized = false;
+        this.__temporary__data = {};
+    }
+    WechatComponent.prototype.__runtime__initialize = function (deep) {
+        if (this.__runtime__initialized) {
+            throw new Error("type already inialized");
+        }
+        this.__runtime__component = deep;
+        this.__runtime__initialized = true;
+    };
+    Object.defineProperty(WechatComponent.prototype, "data", {
+        get: function () {
+            if (this.__runtime__initialized) {
+                return this.__runtime__component.data;
+            }
+            return this.__temporary__data;
+        },
+        set: function (value) {
+            if (this.__runtime__initialized) {
+                this.__runtime__component.setData(value);
+                return;
+            }
+            this.__temporary__data = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    WechatComponent.prototype.setData = function (partialData) {
+        this.__runtime__component.setData(partialData);
+    };
+    WechatComponent.initComponent = function (component) {
+        var componentInstance;
+        if (component instanceof WechatComponent) {
+            componentInstance = component;
+        }
+        else if (typeof (component) === "function") {
+            componentInstance = new component();
+        }
+        else {
+            throw new TypeError("typeof app : must be a instance of WeChatApplication or a constructor of WebChatApplication");
+        }
+        Component(componentConfigConvert(componentInstance));
+    };
+    __decorate([
+        MapToIgnore()
+    ], WechatComponent.prototype, "__temporary__data", void 0);
+    __decorate([
+        MapToIgnore()
+    ], WechatComponent.prototype, "setData", null);
+    return WechatComponent;
+}());
+exports.WechatComponent = WechatComponent;
+function componentConfigConvert(component) {
+    throw new Error("not implement");
+}
+exports.componentConfigConvert = componentConfigConvert;
 //========================================================
 // ================Metadata==============================
 //========================================================
 /**
  * Tell the runtime that this method/property/field do not need map to Config Object
  */
-function Ignore() {
+function MapToIgnore() {
     return Reflect_1.Reflect.metadata("ignore", true);
 }
-exports.Ignore = Ignore;
+exports.MapToIgnore = MapToIgnore;
 /**
- * Tell the runtime that this property/field   need to be a get/set to { Config => Class }
+ * Tell the runtime that this property/field   **must**  get/set back { Config => Class }
  * Warning: this decorator can only apply to filed/property
  */
-function MapGetSet() {
+function MapBackGetSet() {
     return Reflect_1.Reflect.metadata("nomap", true);
 }
-exports.MapGetSet = MapGetSet;
+exports.MapBackGetSet = MapBackGetSet;
+function MapTo(targetName) {
+    return Reflect_1.Reflect.metadata("MapTo", targetName);
+}
+exports.MapTo = MapTo;
