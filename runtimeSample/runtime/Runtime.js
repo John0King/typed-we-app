@@ -145,9 +145,6 @@ function applicationConfigConvert(app) {
 }
 exports.applicationConfigConvert = applicationConfigConvert;
 //========================================================
-// ==================Application.Lifetime==========================
-//========================================================
-//========================================================
 //=====================Page===============================
 //========================================================
 var WeChatPage = /** @class */ (function () {
@@ -326,6 +323,14 @@ exports.componentConfigConvert = componentConfigConvert;
 // ================Metadata==============================
 //========================================================
 /**
+ * Tell the runtime that this method/property/field need to use specified name
+ * @param targetName Specified name
+ */
+function MapTo(targetName) {
+    return Reflect_1.Reflect.metadata("MapTo", targetName);
+}
+exports.MapTo = MapTo;
+/**
  * Tell the runtime that this method/property/field do not need map to Config Object
  */
 function MapToIgnore() {
@@ -340,7 +345,3 @@ function MapBackGetSet() {
     return Reflect_1.Reflect.metadata("nomap", true);
 }
 exports.MapBackGetSet = MapBackGetSet;
-function MapTo(targetName) {
-    return Reflect_1.Reflect.metadata("MapTo", targetName);
-}
-exports.MapTo = MapTo;

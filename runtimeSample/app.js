@@ -34,6 +34,7 @@ var Application = /** @class */ (function (_super) {
             title: "abc:",
             content: "" + this.globalData.abc,
             success: function () {
+                //replace  wechat's  GetApp() function that do not work when initilizing the application!!
                 var a = Runtime_1.WeChatApplication.GetCurrentApp().globalData.g.a; // no intellisence.
                 var b = Runtime_1.WeChatApplication.GetCurrentApp().globalData.g.b; // has intellisence
                 wx.showModal({

@@ -128,7 +128,18 @@ export interface ApplicationConstructor<T extends WeChatApplication> {
 // ==================Application.Lifetime==========================
 //========================================================
 
-
+export interface OnApplicationLaunch{
+    onLaunch(info:WeApp.LaunchData):void;
+}
+export interface OnApplicationShow{
+    onShow():void;///////////////////////////////////////////// Note here
+}
+export interface OnApplicationHide{
+    onHide():void;
+}
+export interface OnApplicationError{
+    onError(args?:any):void; ///////////////////////////////////////////// Note here
+}
 
 //========================================================
 //=====================Page===============================
@@ -243,10 +254,31 @@ export interface OnPageLoad {
     onLoad(args: Map<string, any>): void | Promise<any>
 
 }
+
+export interface OnPageReady{
+    onReady():void;
+}
+export interface OnPageShow{
+    onShow():void;
+}
+export interface OnPageHide{
+    onHide():void;
+}
 export interface OnPageUnload {
     onUnload(): void | Promise<any>
 }
-
+export interface OnPagePullDownRefresh{
+    onPullDownRefresh():void;
+}
+export interface OnPageReachBottom{
+    onReachBottom():void;
+}
+export interface OnPageShareAppMessage{
+    onShareAppMessage(options:{ from: string, target: WeApp.Target }):void;
+}
+export interface OnPageScroll{
+    onPageScroll():void;///////////////////////////////////////////// Note here
+}
 
 //========================================================
 // ================Component==============================
@@ -309,9 +341,40 @@ export function componentConfigConvert(component:WechatComponent):WeApp.Componen
     
 }
 
+
+//========================================================
+// ================Component.Lifetime=====================
+//========================================================
+
+
+export interface OnComponentCreated{
+    created():void;
+}
+export interface OnComponentAttached{
+    attached():void;
+}
+export interface OnComponentReady{
+    ready():void;
+}
+export interface OnComponentMoved{
+    moved():void;
+}
+export interface OnComponentDetached{
+    detached():void;
+}
+
+
 //========================================================
 // ================Metadata==============================
 //========================================================
+
+/**
+ * Tell the runtime that this method/property/field need to use specified name
+ * @param targetName Specified name
+ */
+export function MapTo(targetName:string){
+    return Reflect.metadata("MapTo",targetName);
+}
 
 /**
  * Tell the runtime that this method/property/field do not need map to Config Object
@@ -326,8 +389,4 @@ export function MapToIgnore() {
  */
 export function MapBackGetSet(){
     return Reflect.metadata("nomap",true);
-}
-
-export function MapTo(targetName:string){
-    return Reflect.metadata("MapTo",targetName);
 }

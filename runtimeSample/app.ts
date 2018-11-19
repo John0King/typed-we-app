@@ -16,6 +16,7 @@ class Application extends WeChatApplication{
             title:`abc:`,
             content:`${this.globalData.abc}`,
             success:()=>{
+                //replace  wechat's  GetApp() function that do not work when initilizing the application!!
                 let a = WeChatApplication.GetCurrentApp().globalData.g.a ; // no intellisence.
                 let b = WeChatApplication.GetCurrentApp<Application>().globalData.g.b  // has intellisence
 
@@ -25,8 +26,6 @@ class Application extends WeChatApplication{
                 })
             }
         })
-
-        
     }
 }
 
