@@ -390,3 +390,12 @@ export function MapToIgnore() {
 export function MapBackGetSet(){
     return Reflect.metadata("nomap",true);
 }
+
+export function ComponentProperty(targetName?:string){
+    //let a : WeApp.ComponentParam;
+    let target = targetName === undefined ? null : targetName; // force null instead of undefined
+    return Reflect.metadata("component:property",target)
+}
+export function ComponentNospecial(){
+    return Reflect.metadata("component:nospecial",true)
+}
